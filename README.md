@@ -84,6 +84,103 @@ BOMMigration.Console
 └── Program.cs
 
 
+## 🧩 Code Structure & File Responsibilities
+
+This project follows a simple layered structure to clearly separate data models, file handling logic, and BOM processing logic.  
+Each file has a **single, well-defined responsibility**, similar to real-world PLM migration tools.
+
+---
+
+### 📁 Program.cs (Application Entry Point)
+
+**Purpose:**  
+Acts as the main controller of the application.
+
+**Responsibilities:**
+- Accepts file path input from the user (CSV or Excel)
+- Detects file type based on extension
+- Calls the appropriate file reader service (CSV or Excel)
+- Accepts the root (top-level) part number
+- Triggers BOM hierarchy printing in the console
+
+**Why it exists:**  
+This file coordinates all other components but does not contain business logic itself.
+
+---
+
+### 📁 Models/BomRelation.cs (Data Model)
+
+**Purpose:**  
+Represents a single BOM relationship.
+
+**Contains:**
+- `ParentPart` → Parent item or assembly
+- `ChildPart` → Child component
+- `Quantity` → Number of child components required
+
+**Why it exists:**  
+This model converts raw file data into structured objects that the program can safely process.
+
+---
+
+### 📁 Services/CsvService.cs (CSV File Handler)
+
+**Purpose:**  
+Handles reading and parsing BOM data from CSV files.
+
+**Responsibilities:**
+- Reads CSV files using file handling APIs
+- Supports multiple delimiters (comma, semicolon, tab)
+- Skips empty or malformed rows
+- Validates numeric quantity values
+- Converts valid rows into `BomRelation` objects
+
+**Why it exists:**  
+Separates CSV-specific logic from the main program, making the code easier to maintain and extend.
+
+---
+
+### 📁 Services/ExcelService.cs (Excel File Handler)
+
+**Purpose:**  
+Handles reading and parsing BOM data from Excel (.xlsx) files.
+
+**Responsibilities:**
+- Reads Excel files using `ExcelDataReader`
+- Accesses the first worksheet
+- Skips header rows
+- Validates data integrity
+- Converts Excel rows into `BomRelation` objects
+
+**Why it exists:**  
+Allows the application to support Excel files, which are commonly used in real PLM data migration scenarios.
+
+---
+
+### 📁 Services/BomService.cs (BOM Processing Logic)
+
+**Purpose:**  
+Processes and displays the BOM hierarchy.
+
+**Responsibilities:**
+- Identifies child components for a given parent part
+- Uses recursion to traverse multi-level BOM structures
+- Prints the BOM in a tree-like hierarchical format
+
+**Why it exists:**  
+Encapsulates BOM-specific logic separately from file handling and user interaction.
+
+---
+
+## 🔁 Overall Data Flow
+
+1. User provides file path and root part number  
+2. File is read (CSV or Excel) and converted into `BomRelation` objects  
+3. All BOM relationships are stored in memory  
+4. BOM hierarchy is recursively processed  
+5. Final structure is displayed in the console  
+
+This modular design closely reflects how BOM migration tools are implemented in real PLM systems.
 
 
 
